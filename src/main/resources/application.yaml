@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: pulsewatch
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pulsewatch
+    username: pulsewatch
+    password: pulsewatch
+  mail:
+    host: localhost   # Mailpit from compose.yaml
+    port: 1025
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway creates tables, not Hibernate
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: pulsewatch   # added to every metric, so dashboards can filter by app
+  health:
+    mail:
+      enabled: false   # /actuator/health must not go DOWN just because Mailpit is not running
+
+pulsewatch:
+  alerts:
+    cooldown: PT15M                 # no repeat latency alert for the same monitor within this time
+    from: pulsewatch@localhost      # alerts go to each monitor's owner
+    webhook-url:                    # empty = webhook channel disabled
+  security:
+    # LOCAL DEVELOPMENT ONLY. In production set the environment variable PULSEWATCH_SECURITY_JWT_SECRET to a long random value.
+    jwt-secret: local-dev-only-secret-change-me-in-production-0123456789
+    token-ttl: PT12H

@@ -1,0 +1,6 @@
+# Only active for "./mvnw spring-boot:run" (see the spring-boot-maven-plugin profile in pom.xml).
+# NOT active in Docker or in tests, so those keep the secure defaults.
+pulsewatch:
+  check:
+    # The local test target (httpbin in compose.yaml) lives on localhost, which the SSRF guard forbids by default.
+    allow-private-targets: true

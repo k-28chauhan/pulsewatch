@@ -1,0 +1,71 @@
+# PulseWatch on ONE server (a VPS). From this folder:
+#
+#     cp .env.example .env     # then fill it in
+#     docker compose -f compose.prod.yaml up -d --build
+#
+# What is different from the local ../compose.yaml:
+#   - only Caddy (80 and 443) is reachable from the internet; the database and the API publish no ports
+#   - HTTPS with a free Let's Encrypt certificate, issued and renewed by Caddy itself (needs DOMAIN pointing at this server)
+#   - every secret comes from .env and the stack REFUSES to start if one is missing (the ":?" syntax below)
+#   - the SSRF guard is on: monitors cannot point at private or internal addresses
+#   - real SMTP for alert emails instead of Mailpit; no httpbin, no Grafana, no anonymous anything
+#   - restart: unless-stopped, so everything comes back after a reboot
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pulsewatch
+      POSTGRES_USER: pulsewatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulsewatch -d pulsewatch"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: ..
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pulsewatch
+      SPRING_DATASOURCE_USERNAME: pulsewatch
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      PULSEWATCH_SECURITY_JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (at least 32 random characters)}
+      PULSEWATCH_CHECK_ALLOW_PRIVATE_TARGETS: "false"
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      SPRING_MAIL_HOST: ${SMTP_HOST:?Set SMTP_HOST in .env}
+      SPRING_MAIL_PORT: ${SMTP_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SMTP_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD:-}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      PULSEWATCH_ALERTS_FROM: ${ALERT_FROM:?Set ALERT_FROM in .env (the sender address of alert emails)}
+    # no "ports:": the API is reachable only through the web container, which forwards /api and nothing else
+
+  web:
+    build: ../frontend
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${DOMAIN:?Set DOMAIN in .env (for example pulsewatch.example.com)}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - caddy_data:/data       # certificates: keep them, Let's Encrypt rate-limits re-issuing
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

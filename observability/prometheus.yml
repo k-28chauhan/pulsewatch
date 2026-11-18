@@ -1,0 +1,16 @@
+# Prometheus pulls ("scrapes") metrics from the app every 5 seconds.
+# The app runs on your machine, not in Docker, so Prometheus (inside Docker) reaches it as host.docker.internal.
+# Targets: the app container (full docker compose stack), plus the host ports for when you run the app with
+# ./mvnw spring-boot:run (8080) and a second instance for the ShedLock demo (8082). A target that is not running
+# shows as "down" in Prometheus and is simply not counted by the dashboard.
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: pulsewatch
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - app:8080
+          - host.docker.internal:8080
+          - host.docker.internal:8082

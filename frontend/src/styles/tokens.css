@@ -1,0 +1,98 @@
+/*
+  Design tokens. Every colour in the app is one of these, so light and dark mode are swapped in one place.
+
+  Palette rules:
+  - warm neutral greys for surfaces and text, so the UI recedes and the data leads
+  - ONE accent (blue), used for actions, links, focus and the main chart series
+  - status colours (green, amber, red) appear ONLY where something is up, slow or down, always next to a label
+  The chart colours come from the validated data-viz palette (blue series, status steps).
+*/
+:root {
+  color-scheme: light;
+
+  --bg: #f6f6f4;
+  --surface: #fcfcfb;
+  --surface-sunken: #f1f1ee;
+  --border: #e6e5e1;
+  --border-strong: #d3d2cc;
+
+  --text: #171716;
+  --text-secondary: #52514e;
+  --text-muted: #6f6e69;
+
+  --accent: #256abf;
+  --accent-hover: #1c5cab;
+  --accent-text: #256abf;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(37, 106, 191, 0.1);
+
+  --good: #0ca30c;
+  --good-text: #00700a;
+  --warning: #fab219;
+  --warning-text: #8a5a00;
+  --critical: #d03b3b;
+  --critical-text: #b02a2a;
+  --critical-soft: rgba(208, 59, 59, 0.07);
+
+  --series-primary: #2a78d6;
+  --series-secondary: #a9a8a1;
+  --grid: #ebebe8;
+
+  --shadow-pop: 0 8px 24px rgba(23, 23, 22, 0.12), 0 1px 3px rgba(23, 23, 22, 0.08);
+
+  --radius: 8px;
+  --radius-sm: 6px;
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --surface-sunken: #222221;
+    --border: #2b2b29;
+    --border-strong: #3a3a37;
+    --text: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #92918a;
+    --accent: #2a78d6;
+    --accent-hover: #3987e5;
+    --accent-text: #6da7ec;
+    --accent-soft: rgba(57, 135, 229, 0.16);
+    --good-text: #4cc24c;
+    --warning-text: #fab219;
+    --critical: #e66767;
+    --critical-text: #f08a8a;
+    --critical-soft: rgba(230, 103, 103, 0.1);
+    --series-primary: #3987e5;
+    --series-secondary: #6b6a64;
+    --grid: #262625;
+    --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface: #1a1a19;
+  --surface-sunken: #222221;
+  --border: #2b2b29;
+  --border-strong: #3a3a37;
+  --text: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #92918a;
+  --accent: #2a78d6;
+  --accent-hover: #3987e5;
+  --accent-text: #6da7ec;
+  --accent-soft: rgba(57, 135, 229, 0.16);
+  --good-text: #4cc24c;
+  --warning-text: #fab219;
+  --critical: #e66767;
+  --critical-text: #f08a8a;
+  --critical-soft: rgba(230, 103, 103, 0.1);
+  --series-primary: #3987e5;
+  --series-secondary: #6b6a64;
+  --grid: #262625;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+}

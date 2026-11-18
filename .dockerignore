@@ -1,0 +1,12 @@
+# Keep the build context small and the cache stable: only what the backend image needs is sent to Docker.
+.git
+.idea
+.DS_Store
+target
+frontend
+observability
+deploy
+docs
+*.md
+compose*.yaml
+.env*
